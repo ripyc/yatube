@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+{% block title %}Последние записи в сообществе {{ group }} | Yatube {% endblock %}
+{% block header %}Последние записи в сообществе {{ group }} | Yatube {% endblock %}
+{% block content %}
+    <h2>{{ group.description }}</h2>
+    {% for post in posts %}
+    <h4>
+            Автор: {{ post.author.get_full_name }}, дата публикации: {{ post.pub_date|date:"d M Y" }}
+    </h4>
+    <p> {{ post.text|linebreaksbr }}</p>
+    {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}
+
+{% endblock %}
