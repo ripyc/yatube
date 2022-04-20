@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 
 {% extends "base.html" %}
-{% block title %}Последние записи в сообществе {{ group }} | Yatube {% endblock %}
-{% block header %}Последние записи в сообществе {{ group }} | Yatube {% endblock %}
+{% block title %}Последние записи в сообществе {{ group }} {% endblock %}
+{% block header %}Последние записи в сообществе {{ group }} {% endblock %}
 {% block content %}
     <h2>{{ group.description }}</h2>
     {% for post in posts %}
