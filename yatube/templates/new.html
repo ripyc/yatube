@@ -1,32 +1,67 @@
 <!DOCTYPE html>
-
 {% extends "base.html" %}
-{% block title %}Новая запись пользователя {{ user.username }} {% endblock %}
-{% block header %}Новая запись пользователя {{ user.username }}  {% endblock %}
+
+{% block title %}
+    <!-- При редактировании editing=True, показываем страницу изменения записи,
+    в противном случае вызывается страница создания нового поста -->
+    {% if editing %}Редактирование записи № {{post_id }}
+    {% else %} Новая запись пользователя {{ user.username }}
+    {% endif %}
+{% endblock %}
+
+{% block header %}
+    {% if editing %}Редактирование записи № {{post_id }}
+    {% else %} Новая запись пользователя {{ user.username }}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 {% load user_filters %}
+{% if editing %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 p-5">
+            <div class="card">
+                <div class="card-header">Внесите изменения в запись:</div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <!--<form method="post" action=
+                        {% if post %}"{% url 'post_edit' post_id=post.id %}"
+                        {% else %}"{% url 'new_post' %}"
+                        {% endif %}>
+                        -->
 
-<div class="row justify-content-center">
-    <div class="col-md-8 p-5">
-        <div class="card">
-            <div class="card-header">Напишие о сегодняшнем дне что-нибудь интересное:</div>
-            <div class="card-body">
-
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.text }}<br>
-                    {{ form.group }}<br>
-                    <span> {{ error  }} </span>
-                    <div class="col-md-6 offset-md-4">
-                            <button type="submit" class="btn btn-primary">
-                                Опубликовать запись
-                            </button>
-                    </div>
-                </form>
-
-            </div> <!-- card body -->
-        </div> <!-- card -->
-    </div> <!-- col -->
-</div> <!-- row -->
-
+                        {{ form.text }}<br>
+                        {{ form.group }}<br>
+                        <div class="col-md-6 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    Сохранить изменения
+                                </button>
+                        </div>
+                    </form>
+                </div> <!-- card body -->
+            </div> <!-- card -->
+        </div> <!-- col -->
+    </div> <!-- row -->
+{% else %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 p-5">
+            <div class="card">
+                <div class="card-header">Напишие о сегодняшнем дне что-нибудь интересное:</div>
+                <div class="card-body">
+                        <form method="post">
+                        {% csrf_token %}
+                        {{ form.text }}<br>
+                        {{ form.group }}<br>
+                        <div class="col-md-6 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    Опубликовать запись
+                                </button>
+                        </div>
+                    </form>
+                </div> <!-- card body -->
+            </div> <!-- card -->
+        </div> <!-- col -->
+    </div> <!-- row -->
+{% endif %}
 {% endblock %}

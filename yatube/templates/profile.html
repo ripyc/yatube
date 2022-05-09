@@ -2,12 +2,21 @@
 
 {% extends "base.html" %}
 {% block title %}Персональная страница пользователя {{ author }} {% endblock %}
-{% block header %}Персональная страница пользователя | <span style="color:red">Ya</span>tube{% endblock %}
+{% block header %}
+{% if user == author %}
+<span style="color:red">Ва</span>ша персональная страница
+{% else %}
+Персональная страница пользователя | <span style="color:red">Ya</span>tube
+{% endif %}
+{% endblock %}
 {% block content %}
 <main role="main" class="container">
     <div class="row">
             <div class="col-md-3 mb-3 mt-1">
                     <div class="card">
+                    {% if user == author %}
+                        <div align="right"><span style="color:#e3f2fd">Потрясающе выглядишь. Выпрямь спину</span></div>
+                    {% endif %}
                             <div class="card-body">
                                     <div class="h2">
                                         <!-- Имя автора -->
@@ -49,9 +58,13 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                             <div class="btn-group ">
                                                     <!-- Ссылка на страницу записи в атрибуте href-->
-                                                    <a class="btn btn-sm text-muted" href="/{{ author }}/{{ last_post }}/" role="button">Добавить комментарий</a>
+                                                    {% if user.is_authenticated and total_posts != 0 %}
+                                                    <a class="btn btn-sm text-muted" href="/{{ author }}/{{ total_posts }}/" role="button">Добавить комментарий</a>
+                                                    {% endif %}
                                                     <!-- Ссылка на редактирование, показывается только автору записи -->
-                                                    <a class="btn btn-sm text-muted" href="/{{ author }}/{{ last_post }}/edit" role="button">Редактировать</a>
+                                                    {% if user == author and total_posts != 0 %}
+                                                    <a class="btn btn-sm text-muted" href="/{{ author }}/{{ total_posts }}/edit" role="button">Редактировать</a>
+                                                    {% endif %}
                                             </div>
                                             <!-- Дата публикации  -->
                                             <small class="text-muted">{{ last_post.pub_date|date:"d E Y" }}</small>
@@ -61,7 +74,7 @@
                 <!-- Конец блока с отдельным постом -->
 
                 <!-- Остальные посты -->
-                <h4>Предыдущие записи пользователя:</h4>
+                {% if total_posts > 1 %} <h4>Предыдущие записи пользователя:</h4>{% endif %}
                 <!-- Здесь постраничная навигация паджинатора -->
                 <br>
                 {% for post in page %}

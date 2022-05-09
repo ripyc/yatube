@@ -28,7 +28,6 @@ def group_post(request, slug):
 
 @login_required
 def new_post(request):
-    error = ""
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
@@ -36,15 +35,19 @@ def new_post(request):
             post.author = request.user
             post.save()
             return redirect("index")
-        else:
-            error = "Форма содержит ошибки"
-        return render(request, "new.html", {"form": form})
+        return render(request, "new.html", {"form": form, "editing": False})
     form = PostForm()
-    return render(request, "new.html", {"form": form})
+    return render(request, "new.html", {"form": form, "editing": False})
+
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     post_list = Post.objects.filter(author=author).order_by("-pub_date").all()
+    total_posts = post_list.count
+    if not Post.objects.filter(author=author).exists():
+        post_list = ['пока нет записей']
+        total_posts = 0
+    last_post = post_list[0]
     paginator = Paginator(post_list[1:], 3)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -53,21 +56,48 @@ def profile(request, username):
         request,
         'profile.html',
         {'author': author,
-         'last_post': post_list[0],
-         'total_posts': post_list.count,
+         'last_post': last_post,
+         'total_posts': total_posts,
          'page': page,
          'paginator': paginator
     })
 
 
 def post_view(request, username, post_id):
-    # тут тело функции
-    return render(request, 'post.html', {})
+    author = get_object_or_404(User, username=username)
+    post_list = Post.objects.filter(author=author).order_by("pub_date").all()
+    return render(
+        request,
+        'post.html',
+        {'author': author,
+         'post_id': post_id,
+         'post': post_list[post_id-1],
+         'total_posts': post_list.count
+    })
 
 
+@login_required
 def post_edit(request, username, post_id):
-    # тут тело функции. Не забудьте проверить,
-    # что текущий пользователь — это автор записи.
-    # В качестве шаблона страницы редактирования укажите шаблон создания новой записи
-    # который вы создали раньше (вы могли назвать шаблон иначе)
-    return render(request, 'post_new.html', {})
+    author = get_object_or_404(User, username=username)
+    post = Post.objects.filter(author=author).order_by("pub_date")[post_id-1]
+    if request.method == "GET":
+        # проверяем, что текущий пользователь это автор поста
+        if str(request.user) != username:
+            return redirect('post', username=username, post_id=post_id)
+        form = PostForm(instance=post)
+
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            #post = form.save(commit=False)
+            #post.author = request.user
+            form.save()
+        return redirect('post', username=username, post_id=post_id)
+    return render(
+        request,
+        "new.html",
+        {"form": form,
+         "author": username,
+         "post_id": post_id,
+         "editing": True})
+
