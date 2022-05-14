@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
 
+<!-- При редактировании editing=True, показываем страницу изменения записи,
+в противном случае вызывается страница создания нового поста -->
 {% block title %}
-    <!-- При редактировании editing=True, показываем страницу изменения записи,
-    в противном случае вызывается страница создания нового поста -->
     {% if editing %}Редактирование записи № {{post_id }}
     {% else %} Новая запись пользователя {{ user.username }}
     {% endif %}
@@ -23,16 +23,13 @@
             <div class="card">
                 <div class="card-header">Внесите изменения в запись:</div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <!--<form method="post" action=
-                        {% if post %}"{% url 'post_edit' post_id=post.id %}"
-                        {% else %}"{% url 'new_post' %}"
-                        {% endif %}>
-                        -->
-
                         {{ form.text }}<br>
+                        Группа:<br>
                         {{ form.group }}<br>
+                        Картинка:<br>
+                        {{ form.image }}<br>
                         <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
                                     Сохранить изменения
@@ -49,10 +46,13 @@
             <div class="card">
                 <div class="card-header">Напишие о сегодняшнем дне что-нибудь интересное:</div>
                 <div class="card-body">
-                        <form method="post">
+                        <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form.text }}<br>
+                        Выберите группу для публикации к записи (если хотети):<br>
                         {{ form.group }}<br>
+                        Добавьте картинку к записи (если хотите):<br>
+                        {{ form.image }}<br>
                         <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
                                     Опубликовать запись

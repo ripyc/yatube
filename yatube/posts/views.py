@@ -17,6 +17,16 @@ def index(request):
     return render(request, 'index.html', {'page': page, 'paginator': paginator})
 
 
+def page_not_found(request, exception):
+    # Переменная exception содержит отладочную информацию,
+    # выводить её в шаблон пользователской страницы 404 мы не станем
+    return render(request, "misc/404.html", {"path": request.path}, status=404)
+
+
+def server_error(request):
+    return render(request, "misc/500.html", status=500)
+
+
 def group_post(request, slug):
     group = get_object_or_404(Group, slug=slug)
     post_list = Post.objects.filter(group=group).order_by("-pub_date").all()
@@ -33,6 +43,7 @@ def new_post(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
+            post.image = request.FILES['image']
             post.save()
             return redirect("index")
         return render(request, "new.html", {"form": form, "editing": False})
@@ -59,8 +70,8 @@ def profile(request, username):
          'last_post': last_post,
          'total_posts': total_posts,
          'page': page,
-         'paginator': paginator
-    })
+         'paginator': paginator}
+    )
 
 
 def post_view(request, username, post_id):
@@ -72,8 +83,8 @@ def post_view(request, username, post_id):
         {'author': author,
          'post_id': post_id,
          'post': post_list[post_id-1],
-         'total_posts': post_list.count
-    })
+         'total_posts': post_list.count}
+    )
 
 
 @login_required
@@ -84,13 +95,12 @@ def post_edit(request, username, post_id):
         # проверяем, что текущий пользователь это автор поста
         if str(request.user) != username:
             return redirect('post', username=username, post_id=post_id)
-        form = PostForm(instance=post)
+        form = PostForm(request.POST or None, request.FILES or None, instance=post)
 
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = PostForm(request.POST or None, request.FILES or None, instance=post)
         if form.is_valid():
-            #post = form.save(commit=False)
-            #post.author = request.user
+
             form.save()
         return redirect('post', username=username, post_id=post_id)
     return render(
@@ -100,4 +110,3 @@ def post_edit(request, username, post_id):
          "author": username,
          "post_id": post_id,
          "editing": True})
-

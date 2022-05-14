@@ -70,3 +70,32 @@ class TestPostEdit(TestCase):
                 ):
             response = self.client.post(url)
             self.assertContains(response, self.new_text)
+
+
+class TestPostImage(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="alfa",
+            email="alfa@email.ru",
+            password="test_al123fa",
+            )
+
+    def test_image_edit(self):
+        self.client.login(username="alfa", password="test_al123fa")
+        with open('posts/media/1.jpg', 'rb') as img:
+            test_post = self.client.post(reverse("new_post"),
+                                              data={"author": self.user,
+                                                    "text": "post with image",
+                                                    "image": img,
+                                                    },
+                                              follow=True
+                                              )
+        self.assertEqual(Post.objects.count(), 1)
+        for url in [reverse("post", kwargs={"username": "alfa", "post_id": 1}),
+                    reverse("profile", kwargs={"username": "alfa"}),
+                    reverse("index")
+                    ]:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, '<img')

@@ -5,12 +5,11 @@ from .models import Group, Post
 class PostForm(ModelForm):
     class Meta:
         model = Post
-        fields = ["text", "group"]
+        fields = ["text", "group", "image"]
 
         widgets = {
             "text": Textarea(attrs={
                 "class": "form-control",
                 "placeholder": "Текст записи дневника"
             })
-
         }

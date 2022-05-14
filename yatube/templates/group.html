@@ -4,13 +4,19 @@
 {% block title %}Последние записи в сообществе {{ group }} {% endblock %}
 {% block header %}Последние записи в сообществе {{ group }} {% endblock %}
 {% block content %}
+    {% load thumbnail %}
     <h2>{{ group.description }}</h2>
     <br>
     {% for post in page %}
     <h4>
             Автор: {{ post.author.get_full_name }}, дата публикации: {{ post.pub_date|date:"d M Y" }}
     </h4>
-    <p> {{ post.text|linebreaksbr }}</p>
+    <p>
+        {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+            <img class="card-img" src="{{ im.url }}">
+        {% endthumbnail %}
+        {{ post.text|linebreaksbr }}
+    </p>
     {% if not forloop.last %}<hr>{% endif %}
     {% endfor %}
     <br>
